@@ -62,18 +62,35 @@ resource "aws_s3_bucket_policy" "cloudfront_read" {
   # distribution 建好後可以換成完整 ARN 收緊
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid       = "AllowCloudFrontRead"
-      Effect    = "Allow"
-      Principal = { Service = "cloudfront.amazonaws.com" }
-      Action    = "s3:GetObject"
-      Resource  = "${aws_s3_bucket.this.arn}/*"
-      Condition = {
-        ArnLike = {
-          "aws:SourceArn" = "arn:aws:cloudfront::${var.cdn_account_id}:distribution/*"
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.this.arn,
+          "${aws_s3_bucket.this.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+      {
+        Sid       = "AllowCloudFrontRead"
+        Effect    = "Allow"
+        Principal = { Service = "cloudfront.amazonaws.com" }
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.this.arn}/*"
+        Condition = {
+          ArnLike = {
+            "aws:SourceArn" = "arn:aws:cloudfront::${var.cdn_account_id}:distribution/*"
+          }
         }
       }
-    }]
+    ]
   })
 
   depends_on = [aws_s3_bucket_public_access_block.this]
