@@ -107,6 +107,30 @@ resource "aws_security_group" "manager" {
   }
 }
 
+resource "aws_s3_bucket_policy" "cache" {
+  bucket = aws_s3_bucket.cache.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.cache.arn,
+          "${aws_s3_bucket.cache.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
+}
+
 resource "aws_security_group_rule" "manager_ssh" {
   count             = var.manager_ssh_ingress_cidr != "" ? 1 : 0
   type              = "ingress"
