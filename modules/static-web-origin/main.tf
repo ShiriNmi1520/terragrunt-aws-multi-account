@@ -11,6 +11,24 @@ resource "aws_s3_bucket" "this" {
   bucket = "${var.name}-static-web-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id     = "intelligent_tiering_rule"
+    status = "Enabled"
+
+    transition {
+      days          = 30
+      storage_class = "INTELLIGENT_TIERING"
+    }
+
+    filter {
+      object_size_greater_than = 131072 # 128KB in bytes
+    }
+  }
+}
+
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
 
