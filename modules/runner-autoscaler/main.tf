@@ -391,11 +391,12 @@ resource "aws_autoscaling_group" "worker_amd64" {
 # ---------- Manager EC2 ----------
 
 resource "aws_instance" "manager" {
-  ami                    = data.aws_ssm_parameter.manager_ami.value
-  instance_type          = var.manager_instance_type
-  subnet_id              = local.manager_subnet_id
-  vpc_security_group_ids = [aws_security_group.manager.id]
-  iam_instance_profile   = aws_iam_instance_profile.manager.name
+  ami                         = data.aws_ssm_parameter.manager_ami.value
+  instance_type               = var.manager_instance_type
+  subnet_id                   = local.manager_subnet_id
+  vpc_security_group_ids      = [aws_security_group.manager.id]
+  iam_instance_profile        = aws_iam_instance_profile.manager.name
+  associate_public_ip_address = false
 
   metadata_options {
     http_tokens = "required"
