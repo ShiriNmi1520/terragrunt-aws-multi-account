@@ -1,0 +1,13 @@
+.terraform/
+.terragrunt-cache/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.DS_Store
+
+# .terraform.lock.hcl 要 commit,不要 ignore
